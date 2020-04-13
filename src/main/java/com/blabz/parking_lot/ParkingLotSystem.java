@@ -1,5 +1,7 @@
 package com.blabz.parking_lot;
 
+import com.sun.deploy.net.MessageHeader;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +10,7 @@ public class ParkingLotSystem{
         private List parkedVehicles;
         private int parkingLotCapacity;
         private boolean parkingLotCapacityFull;
+        private List<ParKingLotObserver> observers;
 
         public ParkingLotSystem() {
                 this.parkedVehicles = new ArrayList();
@@ -16,6 +19,9 @@ public class ParkingLotSystem{
         }
         public void setParkingLotCapacity(int capacity) {
                 this.parkingLotCapacity = capacity;
+        }
+        public void registeredParkingLotObserver(ParKingLotObserver observer){
+                this.observers.add(observer);
         }
         public void park(Object vehicle ) throws ParkingLotException {
                 if (this.parkedVehicles.size() == this.parkingLotCapacity) {
