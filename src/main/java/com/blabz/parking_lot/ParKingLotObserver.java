@@ -1,5 +1,6 @@
 package com.blabz.parking_lot;
 
 public interface ParKingLotObserver {
-    public void setParingLotCapacityFull();
+    public void setParkingLotCapacityFull();
+    public void parkingLotIsEmpty();
 }
