@@ -1,7 +1,4 @@
-import com.blabz.parking_lot.AirportSecurity;
-import com.blabz.parking_lot.ParkingLotException;
-import com.blabz.parking_lot.ParkingLotOwner;
-import com.blabz.parking_lot.ParkingLotSystem;
+import com.blabz.parking_lot.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,12 +68,29 @@ public class ParkingLotSystemTest {
         @Test
         public void givenParkingLotWhenParkingLotGetFullShouldInformAirportSecurity() {
         try {
-        parkingLotSystem.registeredParkingLotObserver(security);
+        parkingLotSystem.registeredParkingLotObserver((ParKingLotObserver) security);
         parkingLotSystem.park(car);
         parkingLotSystem.park(new Object());
         parkingLotSystem.park(new Object());
         } catch (ParkingLotException e) {
         boolean isParingLotFull = security.isParkingLotFull();
         Assert.assertTrue(isParingLotFull);
+        }
+        }
+        @Test
+        public void givenParkingLot_WhenParkingLotGetEmptyAfterFull_ShouldInformOwner() {
+        try {
+        parkingLotSystem.registeredParkingLotObserver(owner);
+        parkingLotSystem.park(car);
+        parkingLotSystem.park(new Object());
+        parkingLotSystem.park(new Object());
+        } catch (ParkingLotException e) {
+        }
+        try {
+        parkingLotSystem.unPark(car);
+        boolean lotEmpty = owner.isParkingLotEmpty();
+        Assert.assertTrue(lotEmpty);
+        }catch (ParkingLotException e) {
+        }
         }
         }
