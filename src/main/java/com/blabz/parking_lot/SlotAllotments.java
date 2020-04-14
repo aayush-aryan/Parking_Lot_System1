@@ -1,4 +1,5 @@
 package com.blabz.parking_lot;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,13 +18,22 @@ public class SlotAllotments {
         slots.add(position);
         return position;
     }
-    public ParkingLots getParkingLot(List<ParkingLots> parkingLotsList, DriverType driverType) throws ParkingLotException {
+    public <DriverType> ParkingLots getParkingLot(List<ParkingLots> parkingLotsList, DriverType driverType) throws ParkingLotException {
         ParkingStrategy parkingStrategy;
         if(driverType==DriverType.NORMAL) {
             parkingStrategy = new EvenDistributionParkingStrategy();
             return parkingStrategy.getParkingLot(parkingLotsList);
         }
         parkingStrategy = new NearestFreeSpaceStrategy();
+        return parkingStrategy.getParkingLot(parkingLotsList);
+    }
+    public ParkingLots getParkingLot(List<ParkingLots> parkingLotsList, VehicleSize vehicleSize) throws ParkingLotException {
+        ParkingStrategy parkingStrategy;
+        if(vehicleSize==VehicleSize.LARGE) {
+            parkingStrategy = new LargeVehiclesParkingStrategy();
+            return parkingStrategy.getParkingLot(parkingLotsList);
+        }
+        parkingStrategy = new EvenDistributionParkingStrategy();
         return parkingStrategy.getParkingLot(parkingLotsList);
     }
     public Integer getSlotByEvenlyDistribution() {
