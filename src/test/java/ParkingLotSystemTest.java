@@ -118,7 +118,7 @@ public class ParkingLotSystemTest {
         }
     }
     @Test
-    public void givenParkingLotWhenACarIsNotParkedItShouldNotBePresentInTimeTable() {
+    public void givenParkingLotWhenACarIsNotParkedIt_ShouldNotBePresentInTimeTable() {
         try {
             LocalDateTime vehicleTimeTable1 = parkingLots.getVehicleTimeTable(car);
         } catch (ParkingLotException e) {
