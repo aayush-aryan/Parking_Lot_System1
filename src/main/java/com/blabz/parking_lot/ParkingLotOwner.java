@@ -1,6 +1,5 @@
 package com.blabz.parking_lot;
-
-public class ParkingLotOwner<ParkingLotObserver> implements ParkingLotObserver {
+public class ParkingLotOwner implements ParkingLotObserver {
     private Boolean parkingLotIsFull;
     private Boolean parkingLotIsEmpty;
     private int count = 0;
