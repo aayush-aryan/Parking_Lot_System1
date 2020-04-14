@@ -1,6 +1,6 @@
 package com.blabz.parking_lot;
 
-import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
+import java.util.List;
 
 public class ParkingLotAttendant {
     private List<ParkingLotOwner> parkingLots;
