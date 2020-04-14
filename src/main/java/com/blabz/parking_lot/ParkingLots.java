@@ -1,10 +1,11 @@
 package com.blabz.parking_lot;
+
 import java.time.LocalDateTime;
 import java.util.*;
 
-public class ParkingLots<SlotAllotments> {
+public class ParkingLots {
     ParkingLotOwner owner = new ParkingLotOwner();
-    SlotAllotments slotAllotments;
+    parkinglot.parkinglotcomponent.SlotAllotments slotAllotments;
     private int parkingLotCapacity;
     private List<ParkingLotObserver> observers;
     Map<Integer, Vehicle> vehicleSlotMap = new HashMap<>();
@@ -12,7 +13,7 @@ public class ParkingLots<SlotAllotments> {
     public ParkingLots(int capacity){
         this.parkingLotCapacity = capacity;
         this.observers = new ArrayList<>();
-        this.slotAllotments = new SlotAllotments(capacity);
+        this.slotAllotments = new parkinglot.parkinglotcomponent.SlotAllotments(capacity);
     }
     public void registeredParkingLotObserver(ParkingLotObserver observer){
         this.observers.add(observer);
@@ -77,7 +78,7 @@ public class ParkingLots<SlotAllotments> {
     public Integer getCapacity() {
         return parkingLotCapacity;
     }
-    public ParkingLots getParkingLot(List<ParkingLots> parkingLotsList) throws ParkingLotException {
-        return slotAllotments.getParkingLot(parkingLotsList);
+    public ParkingLots getParkingLot(List<ParkingLots> parkingLotsList,DriverType driverType) throws ParkingLotException {
+        return slotAllotments.getParkingLot(parkingLotsList, driverType);
     }
 }
