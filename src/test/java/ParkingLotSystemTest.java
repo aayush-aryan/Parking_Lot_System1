@@ -1,222 +1,155 @@
-import com.blabz.parking_lot.ParkingLotException;
-import com.blabz.parking_lot.ParkingLotOwner;
-import com.blabz.parking_lot.ParkingLots;
-import com.blabz.parking_lot.Vehicle;
+import com.blabz.parking_lot.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 public class ParkingLotSystemTest {
-    ParkingLots parkingLots;
-    Vehicle car;
-    ParkingLotOwner owner;
+    ParkingLotSystem parkingLotSystem;
+    Object car;
+    ParkingLotOwner owner = new ParkingLotOwner();
+    AirportSecurity security = new AirportSecurity();
+
     @Before
-    public void setupParkingLot() {
-        this.parkingLots = new ParkingLots(4);
-        this.car = new Vehicle("car", vehicleColor);
-        this.owner = new ParkingLotOwner();
-        parkingLots.registeredParkingLotObserver(owner);
+    public void setUp() {
+        parkingLotSystem = new ParkingLotSystem(2);
+        car = new Object();
     }
+
     @Test
-    public void givenParkingLotDriverWantsToKnowParkingLotAvailability() {
-        int availability = parkingLots.getAvailability();
-        Assert.assertEquals(4, availability);
-    }
-    @Test
-    public void givenParkingLotWhenDriverParkedTheCarParkingLotAvailabilityShouldBeDecreased() {
+    public void givenCarWhenParkedInParkingLotShouldReturnTrue() {
         try {
-            parkingLots.park(car);
-            int availability = parkingLots.getAvailability();
-            Assert.assertEquals(3, availability);
+            parkingLotSystem.park(car);
+            boolean isParked = parkingLotSystem.isThisVehiclePresentInParkingLot(car);
+            Assert.assertTrue(isParked);
         } catch (ParkingLotException e) {
             e.printStackTrace();
         }
     }
+
     @Test
-    public void givenParkingLotWhenDriverUnParkedTheCarParkingLotAvailabilityShouldBeIncreased() {
+    public void givenCarWhenFirstParkedAndThenUnParkedShouldReturnFalse() {
         try {
-            parkingLots.park(car);
-            parkingLots.unPark(car);
-            int availability = parkingLots.getAvailability();
-            Assert.assertEquals(4, availability);
+            parkingLotSystem.park(car);
+            parkingLotSystem.unPark(car);
+            boolean result = parkingLotSystem.isThisVehiclePresentInParkingLot(car);
+            Assert.assertFalse(result);
         } catch (ParkingLotException e) {
             e.printStackTrace();
         }
     }
+
     @Test
-    public void givenParkingLotWhenDriverWantsParkedSameCarTwoTimeShouldThrowException() {
+    public void givenCarWhenTryToUnParkedEvenWhenItWasNotParkedShouldThrowException() {
         try {
-            parkingLots.park(car);
-            parkingLots.park(car);
+            Object car2 = new Object();
+            parkingLotSystem.unPark(car2);
+        } catch (ParkingLotException e) {
+            Assert.assertEquals(ParkingLotException.ExceptionType.NO_SUCH_VEHICLE_PARKED, e.type);
+        }
+    }
+
+    @Test
+    public void givenCarIfTryToReParkShouldThrowAnException() {
+        try {
+            parkingLotSystem.park(car);
+            parkingLotSystem.park(car);
         } catch (ParkingLotException e) {
             Assert.assertEquals(ParkingLotException.ExceptionType.VEHICLE_ALREADY_PARKED, e.type);
         }
     }
+
     @Test
-    public void givenParkingLotWhenDriverWantsUnParkedCarEvenHeNotParkedShouldThrowException() {
+    public void givenParkingLotWhenParkingLotGetFullShouldInformParingOwner() {
         try {
-            parkingLots.unPark(car);
+            parkingLotSystem.registeredParkingLotObserver(owner);
+            parkingLotSystem.park(car);
+            parkingLotSystem.park(new Object());
+            parkingLotSystem.park(new Object());
         } catch (ParkingLotException e) {
-            Assert.assertEquals(ParkingLotException.ExceptionType.NO_SUCH_VEHICLE_PARKED, e.type);
+            boolean isParingLotFull = owner.isParkingLotFull();
+            Assert.assertTrue(isParingLotFull);
         }
     }
+
     @Test
-    public void givenParkingLotIfFullShouldThrowException() {
+    public void givenParkingLotWhenParkingLotGetFullShouldInformAirportSecurity() {
         try {
-            parkingLots.park(car);
-            parkingLots.park(new Vehicle("car", vehicleColor));
-            parkingLots.park(new Vehicle("car", vehicleColor));
-            parkingLots.park(new Vehicle("car", vehicleColor));
-            parkingLots.park(new Vehicle("car", vehicleColor));
+            parkingLotSystem.registeredParkingLotObserver(security);
+            parkingLotSystem.park(car);
+            parkingLotSystem.park(new Object());
+            parkingLotSystem.park(new Object());
+        } catch (ParkingLotException e) {
+            boolean isParingLotFull = security.isParkingLotFull();
+            Assert.assertTrue(isParingLotFull);
+        }
+    }
+
+    @Test
+    public void givenParkingLotWhenParkingLotGetEmptyAfterFullShouldInformOwner() {
+        try {
+            parkingLotSystem.registeredParkingLotObserver(owner);
+            parkingLotSystem.park(car);
+            parkingLotSystem.park(new Object());
+            parkingLotSystem.park(new Object());
+        } catch (ParkingLotException e) {
+        }
+        try {
+            parkingLotSystem.unPark(car);
+            boolean lotEmpty = owner.isParkingLotEmpty();
+            Assert.assertTrue(lotEmpty);
+        } catch (ParkingLotException e) {
+        }
+    }
+
+    @Test
+    public void givenParkingLotHavingAttendantShouldBeAbleToParkCar() {
+        try {
+            parkingLotSystem.registeredParkingLotObserver(owner);
+            ParkingLotAttendant parkingLotAttendant = new ParkingLotAttendant(car);
+            parkingLotSystem.getParkingLotAttendant(parkingLotAttendant);
+            boolean isParked = parkingLotSystem.isThisVehiclePresentInParkingLot(car);
+            Assert.assertTrue(isParked);
+        } catch (ParkingLotException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void givenParkingLotHavingAttendantWhenParkingLotFullShouldThrowException() {
+        try {
+            parkingLotSystem.registeredParkingLotObserver(owner);
+            ParkingLotAttendant parkingLotAttendant1 = new ParkingLotAttendant(car);
+            ParkingLotAttendant parkingLotAttendant2 = new ParkingLotAttendant(new Object());
+            ParkingLotAttendant parkingLotAttendant3 = new ParkingLotAttendant(new Object());
+            parkingLotSystem.getParkingLotAttendant(parkingLotAttendant1);
+            parkingLotSystem.getParkingLotAttendant(parkingLotAttendant2);
+            parkingLotSystem.getParkingLotAttendant(parkingLotAttendant3);
         } catch (ParkingLotException e) {
             Assert.assertEquals(ParkingLotException.ExceptionType.PARKING_CAPACITY_FULL, e.type);
         }
     }
+
     @Test
-    public void givenParkingLotDriverWantsToFindCarIfCarPresentShouldReturnTrue() {
+    public void givenParkingLotIfParkedVehicleHaveSameVehicleShouldReturnVehicleAttendant() {
         try {
-            parkingLots.park(car);
-            boolean isPresent = parkingLots.getMyVehicle(car);
-            Assert.assertTrue(isPresent);
+            parkingLotSystem.registeredParkingLotObserver(owner);
+            ParkingLotAttendant parkingLotAttendant = new ParkingLotAttendant(car);
+            parkingLotSystem.getParkingLotAttendant(parkingLotAttendant);
+            ParkingLotAttendant myVehicleAttendant = parkingLotSystem.getMyVehicle(parkingLotAttendant);
+            Assert.assertEquals(parkingLotAttendant, myVehicleAttendant);
         } catch (ParkingLotException e) {
-            e.printStackTrace();
         }
     }
+
     @Test
-    public void givenParkingLotDriverWantsToFindCarIfCarNotPresentShouldThrowException() {
+    public void givenParkingLotIfAttendantNotHaveParkedVehicleShouldThrowException() {
         try {
-            parkingLots.getMyVehicle(car);
+            parkingLotSystem.registeredParkingLotObserver(owner);
+            ParkingLotAttendant parkingLotAttendant = new ParkingLotAttendant(car);
+            parkingLotSystem.getParkingLotAttendant(parkingLotAttendant);
+            ParkingLotAttendant myVehicleAttendant = parkingLotSystem.getMyVehicle(new ParkingLotAttendant(new Object()));
         } catch (ParkingLotException e) {
             Assert.assertEquals(ParkingLotException.ExceptionType.NO_SUCH_VEHICLE_PARKED, e.type);
-        }
-    }
-    @Test
-    public void givenParkingLotWhenACarIsParkedItShouldBePresentInParkingTimeAndDate() {
-        try {
-            parkingLots.park(car);
-            LocalDateTime vehicleTimeTable1 = parkingLots.getVehicleTimeTable(car);
-            TimeUnit.SECONDS.sleep(3);
-            Vehicle car1 = new Vehicle("car", vehicleColor);
-            parkingLots.park(car1);
-            LocalDateTime vehicleTimeTable2 = parkingLots.getVehicleTimeTable(car1);
-            Assert.assertEquals(vehicleTimeTable1.getSecond()+3,vehicleTimeTable2.getSecond());
-            Assert.assertEquals(vehicleTimeTable1.getDayOfWeek(),vehicleTimeTable2.getDayOfWeek());
-        } catch (ParkingLotException | InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-    @Test
-    public void givenParkingLotWhenACarIsNotParkedIt_ShouldNotBePresentInTimeTable() {
-        try {
-            LocalDateTime vehicleTimeTable1 = parkingLots.getVehicleTimeTable(car);
-        } catch (ParkingLotException e) {
-            Assert.assertEquals(ParkingLotException.ExceptionType.NO_SUCH_VEHICLE_PARKED,e.type);
-        }
-    }
-    @Test
-    public void givenParkingLotWhenDriverUnParkedTheCarParkingLotAvailabilityShouldBeIncreased() {
-        try {
-            parkingLots.park(car);
-            parkingLots.unPark(car);
-            int availability = parkingLots.getAvailability();
-            Assert.assertEquals(4, availability);
-        }catch (ParkingLotException e){
-            e.printStackTrace();
-        }
-    }
-    @Test
-    public void givenParkingLotWhenDriverWantsParkedSameCarTwoTimeShouldThrowException() {
-        try {
-            parkingLots.park(car);
-            parkingLots.park(car);
-        }catch (ParkingLotException e){
-            Assert.assertEquals(ParkingLotException.ExceptionType.VEHICLE_ALREADY_PARKED,e.type);
-        }
-    }
-    @Test
-    public void givenParkingLotWhenDriverWantsUnParkedCarEvenHeNotParkedShouldThrowException() {
-        try {
-            parkingLots.unPark(car);
-        }catch (ParkingLotException e){
-            Assert.assertEquals(ParkingLotException.ExceptionType.NO_SUCH_VEHICLE_PARKED,e.type);
-        }
-    }
-    @Test
-    public void givenParkingLotIfFullShouldThrowException() {
-        try {
-            parkingLots.park(car);
-            parkingLots.park(new Vehicle("car", vehicleColor));
-            parkingLots.park(new Vehicle("car", vehicleColor));
-            parkingLots.park(new Vehicle("car", vehicleColor));
-            parkingLots.park(new Vehicle("car", vehicleColor));
-        } catch (ParkingLotException e) {
-            Assert.assertEquals(ParkingLotException.ExceptionType.PARKING_CAPACITY_FULL,e.type);
-        }
-    }
-    @Test
-    public void givenParkingLotDriverWantsToFindCarIfCarPresentShouldReturnTrue() {
-        try {
-            parkingLots.park(car);
-            boolean isPresent = parkingLots.getMyVehicle(car);
-            Assert.assertTrue(isPresent);
-        } catch (ParkingLotException e) {
-            e.printStackTrace();
-        }
-    }
-    @Test
-    public void givenParkingLotDriverWantsToFindCarIfCarNotPresentShouldThrowException() {
-        try {
-            parkingLots.getMyVehicle(car);
-        } catch (ParkingLotException e) {
-            Assert.assertEquals(ParkingLotException.ExceptionType.NO_SUCH_VEHICLE_PARKED,e.type);
-        }
-    }
-    @Test
-    public void givenParkingLotWhenACarIsParkedItShouldBePresentInParkingTimeAndDate() {
-        try {
-            parkingLots.park(car);
-            LocalDateTime vehicleTimeTable1 = parkingLots.getVehicleTimeTable(car);
-            TimeUnit.SECONDS.sleep(3);
-            Vehicle car1 = new Vehicle("car", vehicleColor);
-            parkingLots.park(car1);
-            LocalDateTime vehicleTimeTable2 = parkingLots.getVehicleTimeTable(car1);
-            Assert.assertEquals(vehicleTimeTable1.getSecond()+3,vehicleTimeTable2.getSecond());
-            Assert.assertEquals(vehicleTimeTable1.getDayOfWeek(),vehicleTimeTable2.getDayOfWeek());
-        } catch (ParkingLotException | InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-    @Test
-    public void givenParkingLotWhenACarIsNotParkedItShouldNotBePresentInTimeTable() {
-        try {
-            LocalDateTime vehicleTimeTable1 = parkingLots.getVehicleTimeTable(car);
-        } catch (ParkingLotException e) {
-            Assert.assertEquals(ParkingLotException.ExceptionType.NO_SUCH_VEHICLE_PARKED,e.type);
-        }
-    }
-    @Test
-    public void givenParkingLotCarShouldBeParkedAsNearestFreeSpaceStrategy() {
-        try {
-            List<ParkingLots> parkingLotsList;
-            ParkingLots parkingLots1 = parkingLots.getParkingLot(parkingLotsList, DriverType.HANDICAPPED);
-            Vehicle car1 = new Vehicle("car", vehicleColor);
-            Vehicle car2 = new Vehicle("car", vehicleColor);
-            parkingLots1.park(car);
-            parkingLots1.park(car1);
-            parkingLots1.unPark(car);
-            parkingLots1.park(car2);
-            Set<Integer> occupiedSlots = parkingLots1.getOccupiedSlotSet();
-            Set<Integer> expectedResult = new HashSet<>();
-            expectedResult.add(1);
-            ((HashSet) expectedResult).add(2);
-            Assert.assertEquals(expectedResult,occupiedSlots);
-        } catch (ParkingLotException e) {
-            e.printStackTrace();
         }
     }
 }
