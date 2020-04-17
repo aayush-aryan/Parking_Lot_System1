@@ -18,7 +18,7 @@ public class ParkingLotSystemTest {
     @Before
     public void setupParkingLot() {
         this.parkingLots = new ParkingLots(4);
-        this.car = new Vehicle("car");
+        this.car = new Vehicle("car", vehicleColor);
         this.owner = new ParkingLotOwner();
         parkingLots.registeredParkingLotObserver(owner);
     }
@@ -69,10 +69,10 @@ public class ParkingLotSystemTest {
     public void givenParkingLotIfFullShouldThrowException() {
         try {
             parkingLots.park(car);
-            parkingLots.park(new Vehicle("car"));
-            parkingLots.park(new Vehicle("car"));
-            parkingLots.park(new Vehicle("car"));
-            parkingLots.park(new Vehicle("car"));
+            parkingLots.park(new Vehicle("car", vehicleColor));
+            parkingLots.park(new Vehicle("car", vehicleColor));
+            parkingLots.park(new Vehicle("car", vehicleColor));
+            parkingLots.park(new Vehicle("car", vehicleColor));
         } catch (ParkingLotException e) {
             Assert.assertEquals(ParkingLotException.ExceptionType.PARKING_CAPACITY_FULL, e.type);
         }
@@ -101,7 +101,7 @@ public class ParkingLotSystemTest {
             parkingLots.park(car);
             LocalDateTime vehicleTimeTable1 = parkingLots.getVehicleTimeTable(car);
             TimeUnit.SECONDS.sleep(3);
-            Vehicle car1 = new Vehicle("car");
+            Vehicle car1 = new Vehicle("car", vehicleColor);
             parkingLots.park(car1);
             LocalDateTime vehicleTimeTable2 = parkingLots.getVehicleTimeTable(car1);
             Assert.assertEquals(vehicleTimeTable1.getSecond()+3,vehicleTimeTable2.getSecond());
@@ -150,10 +150,10 @@ public class ParkingLotSystemTest {
     public void givenParkingLotIfFullShouldThrowException() {
         try {
             parkingLots.park(car);
-            parkingLots.park(new Vehicle("car"));
-            parkingLots.park(new Vehicle("car"));
-            parkingLots.park(new Vehicle("car"));
-            parkingLots.park(new Vehicle("car"));
+            parkingLots.park(new Vehicle("car", vehicleColor));
+            parkingLots.park(new Vehicle("car", vehicleColor));
+            parkingLots.park(new Vehicle("car", vehicleColor));
+            parkingLots.park(new Vehicle("car", vehicleColor));
         } catch (ParkingLotException e) {
             Assert.assertEquals(ParkingLotException.ExceptionType.PARKING_CAPACITY_FULL,e.type);
         }
@@ -182,7 +182,7 @@ public class ParkingLotSystemTest {
             parkingLots.park(car);
             LocalDateTime vehicleTimeTable1 = parkingLots.getVehicleTimeTable(car);
             TimeUnit.SECONDS.sleep(3);
-            Vehicle car1 = new Vehicle("car");
+            Vehicle car1 = new Vehicle("car", vehicleColor);
             parkingLots.park(car1);
             LocalDateTime vehicleTimeTable2 = parkingLots.getVehicleTimeTable(car1);
             Assert.assertEquals(vehicleTimeTable1.getSecond()+3,vehicleTimeTable2.getSecond());
@@ -204,8 +204,8 @@ public class ParkingLotSystemTest {
         try {
             List<ParkingLots> parkingLotsList;
             ParkingLots parkingLots1 = parkingLots.getParkingLot(parkingLotsList, DriverType.HANDICAPPED);
-            Vehicle car1 = new Vehicle("car");
-            Vehicle car2 = new Vehicle("car");
+            Vehicle car1 = new Vehicle("car", vehicleColor);
+            Vehicle car2 = new Vehicle("car", vehicleColor);
             parkingLots1.park(car);
             parkingLots1.park(car1);
             parkingLots1.unPark(car);

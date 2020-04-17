@@ -29,4 +29,14 @@ public class ParkedVehicleDetailsTest {
         VehicleColor vehicleColor = details.getVehicleColor();
         Assert.assertEquals(VehicleColor.WHITE, vehicleColor);
     }
+    @Test
+    public void givenARequestToGetVehicleNumberPlateShouldReturnVehicleNumberPlater() {
+        String vehicleNumberPlate = details.getNumberPlate();
+        Assert.assertEquals("BR01", vehicleNumberPlate);
+    }
+    @Test
+    public void givenARequestToGetHandicapCarShouldReturnHandicapCar() {
+        VehicleMake vehicleMake = details1.getVehicleMake();
+        Assert.assertEquals(VehicleMake.SMALL_HANDICAP_CAR, vehicleMake);
+    }
 }

@@ -30,9 +30,9 @@ public class NearestFreeSpaceStrategyTester {
     @Test
     public void IfDriverParksTWoCarsBothCarParkedShouldInFirstSlot() throws ParkingLotException {
         ParkingLots parkingLot1 = parkingLots.getParkingLot(parkingLotsList, DriverType.HANDICAPPED);
-        parkingLot1.park(new Vehicle("car"));
+        parkingLot1.park(new Vehicle("car", vehicleColor));
         ParkingLots parkingLot2 = parkingLots.getParkingLot(parkingLotsList,DriverType.HANDICAPPED);
-        parkingLot2.park(new Vehicle("car"));
+        parkingLot2.park(new Vehicle("car", vehicleColor));
         Integer[] expected = new Integer[]{Integer.valueOf(2), Integer.valueOf(2)};
         Integer[] actual = new Integer[]{parkingLot1.getNumOfVehicleParked(), parkingLot2.getNumOfVehicleParked()};
         Assert.assertArrayEquals(expected,actual);
